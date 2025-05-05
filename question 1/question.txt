@@ -1,0 +1,78 @@
+Develop a streamlined loan application form for a bank using ReactJS. The form should require applicants to provide essential details for the loan application and include routing based on the validation of these details.
+
+Fields:
+
+Full Name: Text field
+Loan Amount: Number field
+Purpose of Loan: Dropdown with options (House, Car, Personal, Education)
+Tenure: Number field (in years)
+
+Tasks:
+
+Create a loan application form component with the specified fields.
+Verify submission with all valid details filled in.
+Ensure the loan amount entered is within specified minimum and maximum limits(1000 and 1000000).
+Check that the tenure is within acceptable limits(1-30 years).
+Ensure proper error messages are shown for both valid and invalid entries.
+If validations pass, navigate to a welcome page using React Router.
+If validations fail, navigate to an Error Page using React Router.
+
+You need to complete the following files:
+
+./src/ErrorPage.js
+./src/LoanForm.js
+./src/WelcomePage.js
+// ErrorPage.js
+
+import React from 'react';
+
+const ErrorPage = () => {
+    // Error message should be displayed in h1
+};
+
+export default ErrorPage;
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import './App.css';
+const LoanForm = () => {
+  const navigate = useNavigate();
+  const \[formData, setFormData] = useState({
+    fullName: "",
+    loanAmount: "",
+    purpose: "House",
+    tenure: "",
+  });
+  const \[errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, \[name]: value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const validationErrors = {};
+    // Validations rules: if valid than navigate to welcome page otherwies 
+    // navigate to error page
+    
+  };
+
+  return (
+    <div>
+    <h1 className="header">Bank Loan Form</h1>
+
+    {/\* Create Loan Form HTML \*/}
+    </div>
+  );
+};
+
+export default LoanForm;
+// WelcomePage.js
+
+import React from 'react';
+
+const WelcomePage = () => {
+    // welcome message should be shown in h1
+};
+
+export default WelcomePage;    complete the code
