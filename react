@@ -1,0 +1,193 @@
+mport React, { useState, useEffect, useCallback } from "react";
+import { Map, GoogleApiWrapper } from "google-maps-react";
+import LocationMarker from "./LocationMarker";
+export const App = ({ google }) => {
+  const [properties, setProperties] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [mapCenter, setMapCenter] = useState({ lat: 31.5497, lng: 74.3436 });
+  const [isMounted, setIsMounted] = useState(true);
+  const [map, setMap] = useState(null);
+  const [markers, setMarkers] = useState([]);
+ 
+ 
+ 
+  const handleMapReady = (mapProps, map) => {
+    setMap(map);
+    setMapCenter(map.center.toJSON());
+ 
+      };
+ 
+  const handleSearch = () => {
+    if(!google || google.maps) return;
+    const service=new google.maps.places.PlaceService(map);
+    service.textSearch({query:searchQuery},(results,status)=>{
+      if(status==="OK"){
+        setSearchResults(results);
+      }
+    });
+  };
+ 
+  const handleAddLocation = (result) => {
+    const location=result.geometry.location;
+    const position={
+      lat:location.let(),
+      lng:location.lng(),
+    };
+ 
+    const marker=new google.maps.Marker({
+      position,map,title:result.name,
+    });
+    setMarkers((prev)=>[...prev,marker]);
+    setProperties((prev)=>[...prev,{name:result.name,position}]);
+    setSearchResults([]);
+    setSearchQuery("");
+     
+ 
+  };
+ 
+  const handleRemoveLocation = useCallback(
+   (index)=>{
+    const newProperties=[...properties];
+    newProperties.splice(index,1);
+    setProperties(newProperties);
+    removeMarker(index);
+  },
+    [properties]
+  );
+ 
+  const removeMarker = useCallback(
+       
+        (index)=>{
+          if(index<0 || index>=markers[index]) return;
+        const marker=markers[index];
+        markers.setMap(null);
+        const newMarkers=[...markers];
+        newMarkers.splice(index,1);
+        setMarkers(newMarkers);
+        },
+          [markers]
+        );
+ 
+ 
+  const handleMapClick = (mapProps, map, clickEvent) => {
+    const geocoder = new google.maps.Geocoder();
+    const latLng={
+      lat: clickEvent.latLng.lat(),
+          lng: clickEvent.latLng.lng()
+    }
+    geocoder.geocode(
+      {
+        location: {
+          lat: clickEvent.latLng.lat(),
+          lng: clickEvent.latLng.lng(),
+        },
+      },
+      (results, status) => {
+        if (status === "OK") {
+          if (results[0]) {
+            const marker=new google.maps.Marker({position:latLng,map,title:results[0].formatted_address,});
+            setMarkers((prev)=>[...prev,marker]);
+            setProperties((prev)=>[...prev,{name:results[0].formatted_address,position:latLng},]);
+           
+        } else {
+          console.log("Geocoder failed due to: " + status);
+        }
+      }
+  });
+  };
+ 
+  useEffect(() => {
+    if (properties.length > 0 && isMounted) {
+     if(properties.length>0){
+        setMapCenter(properties[properties.length-1].position);
+      }
+     
+    }
+  }, [properties]);
+ 
+  return (
+    <div style={{ display: "flex" }}>
+ 
+      <div style={{ flex: "1 1 50%", position: "relative", height: "500px" }}>
+      <label htmlFor="search">Enter location</label>
+        <input type="text" id="search" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search Location"/>
+        <button onClick={handleSearch} >Search</button>
+ 
+        <ul>
+          {searchResults.map((result,index)=>{
+            <li key={index}>{result.name}<button onClick={
+              ()=>{
+                handleAddLocation(result)
+              }
+            }>Add</button></li>
+          })}
+        </ul>
+        <h3>Saved Location</h3>
+        <ul>
+          {properties.map((prop,index)=>(
+           
+            <li key={index}>{prop.name}<button onClick={
+              ()=>{
+                handleRemoveLocation(index)
+              }}>Remove</button></li>
+            ))}
+        </ul>
+      </div>
+ 
+      <div>
+        <Map
+        google={google}
+        zoom={5}
+        initialCenter={mapCenter}
+        onReady={handleMapReady}
+        onClick={handleMapClick}
+        >
+      {properties.map((prop,index)=>(
+        <LocationMarker
+        key={index}
+        position={prop.position}
+        map={map}
+        marker={markers[index]}
+        onRemove={()=>handleRemoveLocation(index)}
+ 
+        />
+      ))}
+ 
+ 
+        </Map>
+      </div>
+    </div>
+  );
+};
+ 
+export default GoogleApiWrapper({
+  apiKey: "AIzaSyDh0LyUchQyqlcsHgYRO5w7iUV4ttlNdDI",
+})(App);
+LocationMarker.js
+ 
+import { useEffect } from 'react';
+ 
+const LocationMarker = ({ position, map, marker, onRemove }) => {
+  useEffect(() => {
+      if(!marker)return;
+      const handleClick=()=>{
+        if(onRemove) onRemove();
+        marker.setMap(null);
+      };
+      marker.addListener("click",handleClick);
+     
+   
+ 
+   
+    return () => {
+      window.google.maps.event.clearListeners(marker,"click");
+     
+       
+    };
+  }, [map, position, marker, onRemove]);
+ 
+  return null;
+};
+ 
+export default LocationMarker;
