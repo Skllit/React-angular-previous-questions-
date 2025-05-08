@@ -1,34 +1,49 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Employee Registration</title>
+    <title>Course Registration</title>
     <style>
       /**
         Add required styles here
       **/
+      .form-group{
+        margin-bottom: 10px;
+      }
+      .error{
+        color: red;
+        font-size: 0.8em;
+      }
+      .success-message{
+        color: green;
+        font-weight: bold;
+        margin-top: 10px;
+      }
     </style>
+
+    
   </head>
   <body>
     <!-- HTML form with elements is already created for you -->
     <div class="registration-form">
       <form id="registration-form">
         <div class="form-group">
-          <label for="studentID">Employee ID</label>
-          <input id="studentID" type="text">
-          <!-- //create input with id studentID -->
+          <label for="studentID">Student ID</label>
+          <input type="text" id="studentID" name="studentID" class="form-control"/>
+          <!-- //create input with id employeeID -->
           <div id="studentID-error" class="form-group error"></div>
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input id="email" type="email">
+          <input type="email" id="email" name="email" class="form-control"/>
           <!-- //create input with id email -->
           <div id="email-error" class="form-group error"></div>
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input id="password" type="password">
+          <input type="password" id="password" name="password" class="form-control"/>
           <!-- //create input with id password -->
           <div id="password-error" class="form-group error"></div>
         </div>
@@ -70,10 +85,6 @@
         passwordError.textContent = "";
         successMessage.style.display = "none";
 
-
-
-
-
         // Validate Employee ID (letters and numbers only)
         const studentIDValue = studentID.value.trim();
         const studentIDRegex = /^[a-zA-Z0-9]*$/;
@@ -82,14 +93,11 @@
           errorForm = true;
          
         }
-        if(!studentIDRegex.test(studentIDValue)){
-          studentIDError.textContent = 'Student ID can only contain letters and numbers.';
-          errorForm = true;
+
+        else if(!studentIDRegex.test(studentIDValue)){
+          studentIDError.textContent="Student ID can only contain letters and numbers.";
+
         }
-
-
-
-
         // if (complete the logic here) {
         //  
         //    show message here  "Employee ID can only contain letters and numbers.";
@@ -101,12 +109,13 @@
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailValue) {
           //complete this show messaage   `Email is required.`;
-          emailError.textContent = "Email is required.";
-          errorForm = true;
+          emailError.textContent="Email is required.";
+          errorForm=true;
         }
-        if (emailValue && !emailRegex.test(emailValue)) {
-          emailError.textContent = "Please enter a valid email address.";
-          errorForm = true;
+        else if (!emailRegex.test(emailValue)) {
+          emailError.textContent="Please enter a valid email address.";
+          errorForm=true;
+       
           //compelete this show message `Please enter a valid email address.`
         }
 
@@ -117,33 +126,19 @@
           passwordError.textContent = "Password is required.";
           errorForm = true;
         }
-        if (passwordValue && !passwordRegex.test(passwordValue)) {
+        else if (!passwordRegex.test(passwordValue)) {
           passwordError.textContent =
             "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
             errorForm = true;
         }
 
-
-
         // If all fields are valid, show success message
         if (!errorForm) {
           successMessage.style.display = "block";
+          registrationForm.reset();
         }
         
       });
     </script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
