@@ -1,1 +1,743 @@
-waite for it 
+----------------------------------------------------------------
+--------------------------------------------------------------------------
+function solve(N, M) {
+  return N%M;
+}
+
+
+const N = BigInt(gets().trim());
+
+const M = BigInt(gets().trim());
+
+const result = solve(N, M);
+
+print(result)
+
+--------------------------------------------------------------------------------
+security first question
+--------------------------------------------------------------------------------
+SecurityConfig.java
+
+package com.wecp.w3day5task1.config;
+
+import com.wecp.w3day5task1.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+            .antMatchers("/admin").hasRole("ADMIN")
+            .antMatchers("/").authenticated()
+            .and()
+            .httpBasic();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+            .inMemoryAuthentication()
+            .withUser("user").password(passwordEncoder().encode("user123")).roles("USER")
+            .and()
+            .withUser("admin").password(passwordEncoder().encode("admin123")).roles("ADMIN");
+
+        auth.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+--------------------------------------------------------------------------------
+HomeController.java
+
+package com.wecp.w3day5task1.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class HomeController {
+
+    @GetMapping("/")
+    public String home() {
+        return "Welcome";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "Welcome Admin";
+    }
+}
+--------------------------------------------------------------------------------
+User.java
+
+package com.wecp.w3day5task1.entity;
+
+import javax.persistence.*;
+
+@Entity
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String username;
+
+    private String password;
+
+    private String roles;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+}
+--------------------------------------------------------------------------------
+UserRepository.java
+package com.wecp.w3day5task1.repository;
+
+import com.wecp.w3day5task1.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
+}
+--------------------------------------------------------------------------------
+CustomUserDetailsService.java
+
+package com.wecp.w3day5task1.service;
+
+import com.wecp.w3day5task1.entity.User;
+import com.wecp.w3day5task1.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (!optionalUser.isPresent()) {
+            throw new UsernameNotFoundException("User not found");
+        }
+
+        User user = optionalUser.get();
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                AuthorityUtils.commaSeparatedStringToAuthorityList("ROLE_" + user.getRoles())
+        );
+    }
+}
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------------------
+
+3rd coding question
+--------------------------------------------------------------------------------
+
+
+export class Employee{
+    empId:number = 0;
+    empName:string = "";
+    empSalary:number=0;
+
+    constructor(empId:number,empName:string,empSalary:number){
+        this.empId = empId;
+        this.empName=empName;
+        this.empSalary=empSalary;
+    }
+
+    displayDetails(){
+        console.log(Employee Details:\nEmployee ID: ${this.empId}\nEmployee Name: ${this.empName}\nEmployee Salary: ${this.empSalary});
+        return true;
+    }
+}
+
+let emp:Employee = new Employee(1,'John Doe',50000);
+emp.displayDetails();
+----------------------------------------------------------------------------------------------------------------------
+Coding question 2
+---------------------------------------------------------------------------------------------------------------------
+// Function to generate a random number between min and max
+const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Function to create an array of 10 random numbers between 1 and 100
+const createRandomNumbersArray = () => {
+  const numbers = [];
+  for (let i = 0; i < 10; i++) {
+    numbers.push(getRandomNumber(1, 100));
+  }
+  return numbers;
+};
+
+// Arrow function to calculate the sum of array values
+const calculateSum = (arr) => arr.reduce((sum, num) => sum + num, 0);
+
+// Arrow function to calculate average
+const calculateAverage = (arr) => calculateSum(arr) / arr.length;
+
+// Function to print array elements using an iterator
+
+const printArrayElements = (arr) => {
+  console.log('Generated Array:', arr); // First expected log
+  console.log('Elements:'); // Second expected log
+  const iterator = arr[Symbol.iterator]();
+  let index = 1;
+  let result = iterator.next();
+  while (!result.done) {
+    console.log(Element ${index}: ${result.value});
+    result = iterator.next();
+    index++;
+  }
+};
+
+// Example usage (you can comment this out during testing)
+const randomArray = createRandomNumbersArray();
+console.log("Generated Array:", randomArray);
+console.log("Sum:", calculateSum(randomArray));
+console.log("Average:", calculateAverage(randomArray));
+console.log("Elements:");
+printArrayElements(randomArray);
+
+// Exporting all necessary modules
+module.exports = {
+  getRandomNumber,
+  calculateSum,
+  calculateAverage,
+  printArrayElements,
+  createRandomNumbersArray
+};
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+MCQS
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+1.You want to be able to specify the loading indicator in cases where some components in the tree below are not yet ready to render while working in React.
+
+Which of the following choices can be used to do so?
+ Select any one option
+
+React.Suspense--------------answer
+React.Fragment
+React.Lazy
+React.Hold 
+
+--------------------------------------------------------------------------------
+
+2.Select any one option
+Clear Answer
+<select multiple={true} value={[B, C]}>
+<select multiple={true} value={'B', 'C'}>
+<select multiple={true} value={['B', 'C']}>--------->answer
+<select multiple={true} value={['B'], ['C']}>
+--------------------------------------------------------------------------------
+The correct option for a React select component with multiple selections would be:
+
+<select multiple={true} value={['B', 'C']}>
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Q3. User-Defined Components in React
+Question:
+Which line will not work as expected with JSX?
+
+jsx
+Copy
+Edit
+function sample(props) {
+  return <div>Sample {props.toWhat}</div>;
+}
+
+function SampleCode() {
+  return <sample toWhat="Code" />;
+}
+Correct Answer: ✅ return <sample toWhat="Code" />;
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Q4. Working with Lists in JavaScript
+Question:
+What should be used in place of XXXX to print [4, 8, 16, 32] on the console?
+
+js
+Copy
+Edit
+const input = [2, 4, 8, 16];
+const output = XXXX;
+console.log(output);
+Answer Options:
+
+input.map((input) => input * 2) ✅
+
+map((input) => input * 2)
+
+input.map((input * 2)
+
+map((input * 2)
+
+✅ Correct Answer: input.map((input) => input * 2)
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q5. Angular Form Validation
+Question:
+What is being achieved using Line1 in the Angular 13 code?
+
+ts
+Copy
+Edit
+name: new FormControl(this.hero.name, [
+  Validators.required,
+  Validators.minLength(4),
+  forbiddenNameValidator(/Morning/i) //Line1
+])
+Correct Answer: ✅ A custom validator is being added to a reactive form.
+
+Explanation:
+Custom validators like forbiddenNameValidator are added as part of a reactive form's validator array.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q6. Working with TypeScript classes
+Code:
+
+ts
+Copy
+Edit
+interface Checkable {
+  check(name: string): boolean;
+}
+
+class NameChecker implements Checkable {
+  check(s) { // L1
+    return s.toLowercse() === "ok"; // L2
+  }
+}
+Correct Answer: ✅ Both L1 and L2
+
+Explanation:
+
+L1: Missing parameter type (s: string), violates interface.
+
+L2: Typo toLowercse() instead of toLowerCase(), will throw an error.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q7. TypeScript Interface Interaction
+Interface:
+
+ts
+Copy
+Edit
+interface UserDefaults {
+  colorThemeOverride?: "dark" | "light";
+}
+Setting value as undefined
+
+Correct Answer: ✅ It will allow most JavaScript runtime checks for the existence to pass.
+
+Explanation:
+With exactOptionalPropertyTypes disabled (default), optional properties can be undefined, and JS checks like if (user.colorThemeOverride) will pass without errors.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q8. Using the require() Function
+Question:
+Which function is wrapped by Module.require()?
+
+Correct Answer: ✅ Module._load
+
+Explanation:
+Node.js uses Module._load() internally to load modules. Module.require() delegates to Module._load().
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q9. ngModel in Angular
+html
+Copy
+Edit
+<input [value]="foo" (change)="changeFn($event)">
+<input [ngModel]="bar" (ngModelChange)="modelChangeFn($event)">
+Correct Answer: ✅ Only 1
+
+Explanation:
+
+(change) binds to the native DOM change event.
+
+(ngModelChange) is Angular-specific.
+
+So only statement 1 is true.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Q10. Working with console.log and async events
+Code:
+
+js
+Copy
+Edit
+function foo() { console.log("foo"); }
+function bar() { console.log("bar"); }
+function too() { console.log("too"); }
+
+function f1() {
+  setImmediate(foo);
+  process.nextTick(bar);
+}
+
+function f2() {
+  f1();
+  process.nextTick(too);
+}
+
+f2();
+Correct Answer: ✅ bar too foo
+
+Explanation:
+
+process.nextTick(bar) runs first.
+
+Then process.nextTick(too) runs.
+
+setImmediate(foo) runs last.
+
+So order: bar → too → foo
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+REACT 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+patientinformation.js
+
+
+import React, { useEffect, useState } from 'react';
+import { getPatients } from './PatientService';
+
+export const PatientInformation = ({ patientID }) => {
+  const [patient, setPatient] = useState(null);
+
+  useEffect(() => {
+    const fetchPatient = async () => {
+      const patients = await getPatients();
+      const found = patients.find((p) => p.patientID === patientID);
+      if (found) setPatient(found);
+    };
+
+    fetchPatient();
+  }, [patientID]);
+
+  if (!patient) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <p>Patient ID: {patient.patientID}</p>
+      <p>Name: {patient.name}</p>
+      <p>Age: {patient.age}</p>
+      <p>Gender: {patient.gender}</p>
+      <p>Condition: {patient.condition}</p>
+      <p>Last Visit: {patient.lastVisit}</p>
+    </div>
+  );
+};
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+patientregistrationform.js
+
+
+import React, { useState } from 'react';
+import { addPatient } from './PatientService';
+
+const PatientRegistrationForm = ({ onRegister }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    gender: '',
+    condition: '',
+    lastVisit: '',
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.age) newErrors.age = 'Age is required';
+    if (!formData.gender) newErrors.gender = 'Gender is required';
+    if (!formData.condition) newErrors.condition = 'Condition is required';
+    if (!formData.lastVisit) newErrors.lastVisit = 'Last Visit is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    await addPatient(formData);
+    if (onRegister) {
+      onRegister(formData);
+    }
+
+    setFormData({ name: '', age: '', gender: '', condition: '', lastVisit: '' });
+    setErrors({});
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input placeholder="Name" name="name" value={formData.name} onChange={handleChange} />
+      {errors.name && <div>{errors.name}</div>}
+
+      <input placeholder="Age" name="age" value={formData.age} onChange={handleChange} />
+      {errors.age && <div>{errors.age}</div>}
+
+      <select name="gender" value={formData.gender} onChange={handleChange}>
+        <option value="">Select Gender</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+      {errors.gender && <div>{errors.gender}</div>}
+
+      <input placeholder="Condition" name="condition" value={formData.condition} onChange={handleChange} />
+      {errors.condition && <div>{errors.condition}</div>}
+
+      <input placeholder="Last Visit (YYYY-MM-DD)" name="lastVisit" value={formData.lastVisit} onChange={handleChange} />
+      {errors.lastVisit && <div>{errors.lastVisit}</div>}
+
+      <button type="submit">Register Patient</button>
+    </form>
+  );
+};
+
+export default PatientRegistrationForm;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+patientservice.js
+
+let mockPatients = [];
+
+export const addPatient = async (patient) => {
+  const id = P${(mockPatients.length + 1).toString().padStart(3, '0')};
+  mockPatients.push({ ...patient, patientID: id });
+};
+
+export const getPatients = async () => {
+  return [...mockPatients];
+};
+==============================================================--------------------------------------------------------------------------------
+
+
+//STOCKCONTROLLER
+
+package com.wecp.stockbrokeragefirm.controller;
+
+import com.wecp.stockbrokeragefirm.entity.Stock;
+import com.wecp.stockbrokeragefirm.service.StockService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/stocks")
+public class StockController {
+
+    @Autowired
+    private StockService stockService;
+
+    @PostMapping
+    public ResponseEntity<String> addStock(@RequestBody Stock stock) {
+        stockService.addStock(stock);
+        return new ResponseEntity<>("Stock added successfully", HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Stock>> getAllStocks() {
+        List<Stock> stocks = stockService.getAllStocks();
+        return new ResponseEntity<>(stocks, HttpStatus.OK);
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+//STOCK
+package com.wecp.stockbrokeragefirm.entity;
+
+public class Stock {
+    private String ticker;
+    private String name;
+    private double price;
+
+    // Constructors
+    public Stock() {}
+
+    public Stock(String ticker, String name, double price) {
+        this.ticker = ticker;
+        this.name = name;
+        this.price = price;
+    }
+
+    // Getters and Setters
+    public String getTicker() {
+        return ticker;
+    }
+
+    public void setTicker(String ticker) {
+        this.ticker = ticker;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+}
+--------------------------------------------------------------------------------
+//STOCKSERVICE
+package com.wecp.stockbrokeragefirm.service;
+
+
+import com.wecp.stockbrokeragefirm.entity.Stock;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class StockService {
+
+    private final List<Stock> stocks = new ArrayList<>();
+
+    public void addStock(Stock stock) {
+        stocks.add(stock);
+    }
+
+    public List<Stock> getAllStocks() {
+        return stocks;
+    }
+}
+
+=============================================================--------------------------------------------------------------------------------
+Angular Question 
+=============================================================--------------------------------------------------------------------------------
+// ~instructor-dashboard.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-instructor-dashboard',
+  templateUrl: './instructor-dashboard.component.html',
+  styleUrls: ['./instructor-dashboard.component.css']
+})
+export class InstructorDashboardComponent {
+
+}
+
+
+// ~login.component.ts
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+  username: string = '';
+  password: string = '';
+  errorMessage: string = '';
+
+  constructor(private authService: AuthService, private router: Router) {}
+
+  login() {
+    if (this.authService.login(this.username, this.password)) {
+      const role = this.authService.getUserRole();
+      if (role === 'student') {
+        this.router.navigate(['/student-dashboard']);
+      } else if (role === 'instructor') {
+        this.router.navigate(['/instructor-dashboard']);
+      }
+    } else {
+      this.errorMessage = 'Invalid username or password';
+    }
+  }
+}
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+// ~student-dashboard.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-student-dashboard',
+  templateUrl: './student-dashboard.component.html',
+  styleUrls: ['./student-dashboard.component.css']
+})
+export class StudentDashboardComponen
