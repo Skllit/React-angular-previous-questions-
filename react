@@ -1,193 +1,348 @@
-mport React, { useState, useEffect, useCallback } from "react";
-import { Map, GoogleApiWrapper } from "google-maps-react";
-import LocationMarker from "./LocationMarker";
-export const App = ({ google }) => {
-  const [properties, setProperties] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
-  const [mapCenter, setMapCenter] = useState({ lat: 31.5497, lng: 74.3436 });
-  const [isMounted, setIsMounted] = useState(true);
-  const [map, setMap] = useState(null);
-  const [markers, setMarkers] = useState([]);
- 
- 
- 
-  const handleMapReady = (mapProps, map) => {
-    setMap(map);
-    setMapCenter(map.center.toJSON());
- 
-      };
- 
-  const handleSearch = () => {
-    if(!google || google.maps) return;
-    const service=new google.maps.places.PlaceService(map);
-    service.textSearch({query:searchQuery},(results,status)=>{
-      if(status==="OK"){
-        setSearchResults(results);
-      }
-    });
-  };
- 
-  const handleAddLocation = (result) => {
-    const location=result.geometry.location;
-    const position={
-      lat:location.let(),
-      lng:location.lng(),
-    };
- 
-    const marker=new google.maps.Marker({
-      position,map,title:result.name,
-    });
-    setMarkers((prev)=>[...prev,marker]);
-    setProperties((prev)=>[...prev,{name:result.name,position}]);
-    setSearchResults([]);
-    setSearchQuery("");
-     
- 
-  };
- 
-  const handleRemoveLocation = useCallback(
-   (index)=>{
-    const newProperties=[...properties];
-    newProperties.splice(index,1);
-    setProperties(newProperties);
-    removeMarker(index);
-  },
-    [properties]
-  );
- 
-  const removeMarker = useCallback(
-       
-        (index)=>{
-          if(index<0 || index>=markers[index]) return;
-        const marker=markers[index];
-        markers.setMap(null);
-        const newMarkers=[...markers];
-        newMarkers.splice(index,1);
-        setMarkers(newMarkers);
-        },
-          [markers]
-        );
- 
- 
-  const handleMapClick = (mapProps, map, clickEvent) => {
-    const geocoder = new google.maps.Geocoder();
-    const latLng={
-      lat: clickEvent.latLng.lat(),
-          lng: clickEvent.latLng.lng()
-    }
-    geocoder.geocode(
-      {
-        location: {
-          lat: clickEvent.latLng.lat(),
-          lng: clickEvent.latLng.lng(),
-        },
-      },
-      (results, status) => {
-        if (status === "OK") {
-          if (results[0]) {
-            const marker=new google.maps.Marker({position:latLng,map,title:results[0].formatted_address,});
-            setMarkers((prev)=>[...prev,marker]);
-            setProperties((prev)=>[...prev,{name:results[0].formatted_address,position:latLng},]);
-           
-        } else {
-          console.log("Geocoder failed due to: " + status);
-        }
-      }
-  });
-  };
- 
-  useEffect(() => {
-    if (properties.length > 0 && isMounted) {
-     if(properties.length>0){
-        setMapCenter(properties[properties.length-1].position);
-      }
-     
-    }
-  }, [properties]);
- 
-  return (
-    <div style={{ display: "flex" }}>
- 
-      <div style={{ flex: "1 1 50%", position: "relative", height: "500px" }}>
-      <label htmlFor="search">Enter location</label>
-        <input type="text" id="search" value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} placeholder="Search Location"/>
-        <button onClick={handleSearch} >Search</button>
- 
-        <ul>
-          {searchResults.map((result,index)=>{
-            <li key={index}>{result.name}<button onClick={
-              ()=>{
-                handleAddLocation(result)
-              }
-            }>Add</button></li>
-          })}
-        </ul>
-        <h3>Saved Location</h3>
-        <ul>
-          {properties.map((prop,index)=>(
-           
-            <li key={index}>{prop.name}<button onClick={
-              ()=>{
-                handleRemoveLocation(index)
-              }}>Remove</button></li>
-            ))}
-        </ul>
-      </div>
- 
-      <div>
-        <Map
-        google={google}
-        zoom={5}
-        initialCenter={mapCenter}
-        onReady={handleMapReady}
-        onClick={handleMapClick}
-        >
-      {properties.map((prop,index)=>(
-        <LocationMarker
-        key={index}
-        position={prop.position}
-        map={map}
-        marker={markers[index]}
-        onRemove={()=>handleRemoveLocation(index)}
- 
-        />
-      ))}
- 
- 
-        </Map>
-      </div>
-    </div>
-  );
+-----------------------------------------------------------------------------------------------------------------------------------------
+React-1-patient
+-----------------------------------------------------------------------------------------------------------------------------------------
+	
+let mp=[];
+export const addpatient=()=>{
+const id=`${(mp.length+1).toString.padStart(3,'0');
+mp.push({...patient,pid:id});
+}
+
+export const getall=()=>{
+return [...mp];
+}
+
+-------------------------------------------------------
+export const PRF=async({OnRegister})=>{
+
+const[fd,setfd]=useState({name:"",..........});
+const[error,seterror]=useState({});
+
+const validate=()=>{
+const newError={}
+if(!fd.name)
+newError.name="";
+
+setError(newError)
+return object.keys(newError).lenght===0;
+}
+
+const hc=(e)=>{
+setfd({...fd,[e.target.name]:e.target.value;
+}
+
+const hs=(e)=>{
+e.preventDefault();
+if(!validate())
+return;
+
+await addpatient(fd)
+
+if(onRegister)
+onRegister(fd)
+setfd({name:"",.........})
+setError({});
+
+return(
+--------------------------------------------------------------
+export const PAIN=({pid})=>{
+const[patient,setpatient]=useState(null);
+
+useEffect(()=>{
+const fetchpatient=async()=>{
+const patients= await getall();
+const found=patients.find((p)=>p.id===pid);
+if(found)
+setPatient(found);
+}
+fetchPatient();
+}[pid]);
+-----------------------------------------------------------------------------------------------------------------------------------------
+React-2-loanform
+-----------------------------------------------------------------------------------------------------------------------------------------
+export const loanform=()=>{
+const [fd,setfd]=useState({name:"",.......})
+const navigate=useNavigate();
+const [error,setError]=useState({})
+
+const hc=(e)=>{
+setfd({...fd,[e.target.name]:e.target.value});
+}
+
+const hs=(e)=>{
+const VE={}
+e.preventDefault();
+
+if(!fd.fn.trim()){
+VE.fn="";
+
+const amt=parseFloat(fd.la)
+if(isNaN(amt)||amt<x||amt>x){
+VE.la="";
+}
+
+const tenure=parseInt(fd.ten){
+if(isNaN(tenure)||xxx||xxx)
+VE.ten=""
+}
+
+setError(VE);
+if(objects.key(VE).length===0){
+navigate("/welcome")
+else
+navigate("/error")
+}
+
+return(
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+React-3-sales
+-----------------------------------------------------------------------------------------------------------------------------------------
+export const getdata=async()=>{
+const {data}=await axios.get(jsn);
+return data;
+}
+
+export const cts=(sales)=>{
+return sales.reduce((total,sale)=>total+sale.st,0);
+}
+
+export const ctcs=(sales)=>{
+return sales.filter((sale)=>!sale.creditcard)
+.reduce((total,sale)=>total+sale.st,0);
+}
+
+export const ctcrs=(sales)=>{
+return sales.fileter((sale)=>sale.creditcard)
+.reduce((total,sale)=>total+sale.st,0);
+}
+
+export const msb=(sales)=>{
+const bs=sales.reduce((acc,sale)=>{
+acc[sale,bn]=(acc[sale,bn]||0)+sale.st;
+return acc;
+},{});
+
+const tb=object.enteries(bs).reduce((max,[buyer,total])=>{
+return total>max.st?{bn:buyer,st:total}:max;
+},{bn:"",st:0});
+return tb;
+}
+------------------------------------------------------------------
+
+function DashBoard(){
+const[ts,setts]=useState(0);
+const[tcs,settcs]=useState(0);
+const[tcrs,settcrs]=useState(0);
+const[msb,setmsb]=useState({bn:"",st:""})
+
+
+useEffect(()=>{
+const fetchsales=aysn()=>{
+const sales=await getsales();
+setts(cts(sales));
+settcs(ctcs(sales));
+settcrs(ccrs(sales));
+setmsb(msb(sales));
 };
- 
-export default GoogleApiWrapper({
-  apiKey: "AIzaSyDh0LyUchQyqlcsHgYRO5w7iUV4ttlNdDI",
-})(App);
-LocationMarker.js
- 
-import { useEffect } from 'react';
- 
-const LocationMarker = ({ position, map, marker, onRemove }) => {
-  useEffect(() => {
-      if(!marker)return;
-      const handleClick=()=>{
-        if(onRemove) onRemove();
-        marker.setMap(null);
-      };
-      marker.addListener("click",handleClick);
-     
-   
- 
-   
-    return () => {
-      window.google.maps.event.clearListeners(marker,"click");
-     
-       
-    };
-  }, [map, position, marker, onRemove]);
- 
-  return null;
+fetchsales();
+}[]);
+}
+return(
+-----------------------------------------------------------------------------------------------------------------------------------------
+React-4-proerty
+-----------------------------------------------------------------------------------------------------------------------------------------
+const propertyservice{
+
+getallprops:async()=>{
+const res=await fetch(api);
+if(!res.ok)throw new Error("")
+return res.json();
+}
+
+getbyid:async(pid)=>[
+const res=await fetch(`${api}_id${pid}`);
+if(!res.ok)throw new error("");
+return res.json();
+},
+
+addProperty:async(newprop)=>{
+const res=await fetch(api,{
+method:'POST',
+header:{contentType:"application/json",
+body:json.stringify(newprop)});
+if(!res.ok)throw new error("");
+return res.json();
+}
+
+export default ps;
+------------------------------------------------const AddProp=()=>{
+const[prop,setprop]=useState({_id:'',............});
+const[error,seterror]=useState(null);
+const[message,setmessage]=useState("");
+const hc=(e)=>{
+setprop({...prop,[e.target.name]:e.target.value});
+}
+
+const handlesubmit=(e)=>{
+e.preventDefault();
+seterror(null);
+try{
+await propertyservice.addprop(prop);
+setMessage("added");
+}catch(err){
+setError(err.message)
+}
+return(
+
+---------------------------------------------------------------
+const getpropdetails=()=>{
+
+const {propid}=useParms();
+const [prop,setprop]=useState(null)
+const [loading,setloading]=useState(true)
+const [error,seterror]=useState(null);
+
+UseEffect(()=>{
+const fetchdetails=async()=>{
+try{
+const data=propetyservice.getbyid(id);
+setprop(data[0])
+setloading(false)
+}catch (err){
+seterror(err.message);
+setloading(false)
+}
+
+}
+getpropdetials();
+},[pid]);
+}
+if(loading)
+if(error)
+
+return(
+----------------------------------------------------------------------
+const propertylist=()=>{
+const [prop,setprop]=usestate(null)
+cosnt [loading,setloading]=usestate(true);
+const [error,seterror]=usestate(null)
+
+useEffect(()=>{
+
+const fetchlist=async()=>{
+try{
+const data=await propservice.getall();
+setprop(data);
+setloading(fasle)
+}catch(err){
+seterror(err.message)
+setloading(false)
+}
+}
+fetchlist();
+}[])
+
+if(loading)
+if(error)
+}
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+React-5-cricket
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------
+player.js
+------------------------------------------------------------------------------------
+const allplayers=pd;
+
+export const getplayers=()=>{
+return allplayers;
+
+export const generteid=()=>{
+return allplayer.length+1;
+
+export const getplayer=(id)=>{
+return allplayer.find((P)=>p.id===id);
+}
+
+export const addplayer=(player)=>{
+allplayer.push(player)
+}
+
+export const updateplayer=(index,newplayer)=>{
+allplayer[index]=newplayer;
+}
+
+export const deleteplayer=(index)=>{
+allplayer.splice(index,1);
 };
- 
-export default LocationMarker;
+
+export const getindexofPlayer=(id)=>{
+return allplayer.findIndex((p)=>p.id===id);
+}
+------------------------------------------------------------------------------------
+team.js
+------------------------------------------------------------------------------------
+const alert=(msg)={
+toast.error(msg,{position:'top-right'})
+}
+
+let team={
+title:"rcb",
+players:[],
+};
+
+
+export const getTeam=()=>{
+return team;
+}
+
+export const setteam=(tm)=>{
+team=tm;
+};
+
+export const editplayer=(id,newplayer)=>{
+const index=team.player.findindex((p)=>p.id===id);
+if(index!==-1){
+team.players[index]=newplayer;
+}else{
+alert("")
+}
+
+export const addplayer=(player)=>{
+if(!team.players.find((p)=>p.id===player.id)){
+team.players.push(player)
+else{
+alert()
+}
+
+export const deleteteamplayer=(id)=>{
+const index=team.players.findIndex((p)=>p.id==id);
+if(index!==-1)
+team.players.splice(index,1)
+else
+alert();
+
+export const getstatus=()={
+const bm=team.players.filter((P)=>p.role==="bm")
+const bowler
+const wc
+if(bm.length<2){
+return[""];
+if(bowler.length<2)
+return[];
+if(wc.length<1){
+return[]
+}
+return
+[]
+};
+
+
+
+
+
+
